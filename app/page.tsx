@@ -10,7 +10,7 @@ import  { Heures } from "../lib/types"
 export default function Home() {
   const [url, setUrl] = useState('');
   
-  const [deadline, setDeadline] = useState("2026-03-25");
+  const [deadline, setDeadline] = useState("2026-04-1");
   const [heures, setHeures] = useState<Heures | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -81,7 +81,17 @@ export default function Home() {
           {heures !== null && (
             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded text-center">
               <p className="text-gray-600">Heures restantes avant le {deadline} :</p>
-              <p className="text-4xl font-bold text-green-700">{heures?.total} h</p>
+              <p className="text-4 font-bold text-green-700">Total : {heures?.total} h</p>
+              <p className="text-4 font-bold text-green-700">Total de cours annulés : {heures?.totalAnnule} h</p>
+              <p className="text-4 font-bold text-green-700">Total de jours : {heures?.totalJours} </p>
+              <p className="text-4 font-bold text-green-700">Total de semaines : {heures?.totalSemaines}</p>
+              <br />
+              {Array.from(heures.cours.entries()).map(([nom,nb])=>(
+                <p className="text-4 font-bold text-green-700">
+                  {nom} : {nb} h
+                </p>
+              ))}
+              
             </div>
           )}
 

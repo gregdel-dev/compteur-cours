@@ -1,6 +1,7 @@
 import ICAL from 'ical.js';
 //import { useState } from 'react';
 import  { Heures } from "./types"
+import { getWeekNumber, pasUnDoublon } from './fonctions';
 
 
 export function calculerHeuresTotales(icsText: string, deadline : Date){
@@ -9,38 +10,44 @@ export function calculerHeuresTotales(icsText: string, deadline : Date){
     const vevents = comp.getAllSubcomponents('vevent');
     const heures= new Heures()
 
-    let lastName="test"
-    let totalHeures=0
-    let totalAnnule=0
+    const days=[new Date().toDateString()]
+    const weeks= [0]
     vevents.forEach((vevent)=>{
         const event = new ICAL.Event(vevent);
-        let annule=false
-        let doublon= false
-        if (event.summary.startsWith("ANNULE"))  {annule= true}
-        if (event.summary===lastName) doublon = true
-        lastName=event.summary
-        if (event.isRecurring() && !annule && !doublon){
-            console.log("test")
-            const iterator = event.iterator();
-            let nextDate: ICAL.Time | null;
-            while ((nextDate = iterator.next())) {
-                if(nextDate.toJSDate()>deadline) break
-                const occurrence = event.getOccurrenceDetails(nextDate);
-                const duree = (occurrence.endDate.toJSDate().getTime() - occurrence.startDate.toJSDate().getTime()) / (1000 * 60 * 60);
-                totalHeures += duree;
-            }
+
+        //if (event.startDate.toJSDate().getDate()===new Date("2026-03-31").getDate()) console.log(event.summary,event.startDate.toJSDate(), event.startDate.toJSDate().toDateString())
+
+        if (pasUnDoublon(event)) {
+            const startDate=event.startDate.toJSDate()
+            //console.log(event.description)
             
-        } else if (!doublon) {
-            if (event.startDate.toJSDate()< deadline){
-                const duree = (event.endDate.toJSDate().getTime() - event.startDate.toJSDate().getTime()) / (1000 * 60 * 60)
-                if (annule) totalAnnule+=duree
-                else totalHeures += duree
+            if (startDate< deadline && startDate> new Date()){
+                
+                if (!days.includes(event.startDate.toJSDate().toDateString())) {
+                    heures.totalJours +=1
+                    days.push(event.startDate.toJSDate().toDateString())
+                    
+                    if(!weeks.includes(getWeekNumber(event.startDate.toJSDate()))) {
+                        heures.totalSemaines+=1
+                        weeks.push(getWeekNumber(event.startDate.toJSDate()))
+                    }
+
+                }
+                const duree = Math.round((event.endDate.toJSDate().getTime() - event.startDate.toJSDate().getTime()) / (1000 * 60 * 60))
+                //console.log(duree)
+                if (event.summary.startsWith("ANNULE")) heures.totalAnnule+=duree
+                else {
+                    heures.total += duree
+                    heures.cours.set(event.summary,(heures.cours.get(event.summary) || 0)+duree)
+                    
+                }
+
             }
         }
 
     })
 
-    heures.total=Math.trunc(totalHeures)
-    heures.totalAnnule=Math.trunc(totalAnnule)
+    heures.total=Math.trunc(heures.total)
+    heures.totalAnnule=Math.trunc(heures.totalAnnule)
     return  heures
 }
