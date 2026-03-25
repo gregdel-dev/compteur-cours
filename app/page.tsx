@@ -11,7 +11,7 @@ export default function Home() {
   const [url, setUrl] = useState('');
   const [urlListe, setUrlListe] = useState({})
   
-  const [deadline, setDeadline] = useState("2026-04-1");
+  const [deadline, setDeadline] = useState("2026-06-26");
   const [heures, setHeures] = useState<Heures | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,10 +22,8 @@ export default function Home() {
   useEffect(() => {
     
     const initiate = async () => {
-      //await setUrl("https://api.ecoledirecte.com/v3/ical/E/4956/5a55393456574a43613056565a6a687865546c4f4d31706a576d73764f4864736458424361474633.ics")
       await handleCalculate();
       await fetchUrlListe()
-      //setHours(2);
     };
     initiate();
   }, [])
@@ -49,9 +47,6 @@ export default function Home() {
     setHeures(null);
 
     try {
-      // Étape 1 : Récupérer le contenu ICS
-      // Si vous avez des erreurs CORS ici, il faudra déplacer ce fetch dans une API Route (app/api/fetch-ics/route.ts)
-      const urlMoi= "https://api.ecoledirecte.com/v3/ical/E/4956/5a55393456574a43613056565a6a687865546c4f4d31706a576d73764f4864736458424361474633.ics"
       const response = await fetch(url);
       if (!response.ok) throw new Error('Impossible de récupérer le fichier ICS. Vérifiez l\'URL ou les restrictions CORS.');
       
