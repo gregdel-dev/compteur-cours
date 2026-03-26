@@ -5,11 +5,7 @@
  */
 
 import ICAL from 'ical.js';
-import fs from 'fs'
-import { json } from 'stream/consumers';
-import { finishAccumulatingVaryParams } from 'next/dist/server/app-render/vary-params';
-import { get } from 'http';
-import { useState } from 'react';
+
 
 
 export function getWeekNumber(date: Date): number {

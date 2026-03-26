@@ -10,25 +10,37 @@ import { addUrl, getUrlListe } from '@/lib/fonctions';
 export default function Home() {
   const [url, setUrl] = useState('');
   const [urlListe, setUrlListe] = useState({})
-  
-  const [deadline, setDeadline] = useState("2026-06-26");
+  const [deadline, setDeadline] = useState("2026-06-06");
   const [heures, setHeures] = useState<Heures | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isSelecting, setIsSelecting] = useState(true)
   const [isAdding, setIsAdding]=useState(false)
+  const [nom, setNom]=useState("")
+  const params = new URLSearchParams(window.location.search);
+  const nomArg = params.get("nom")
+  const deadlineArg = params.get("deadline")
+  const urlBase = window.location.origin
+  const [urlPerso, setUrlPerso]= useState('')
 
 
   useEffect(() => {
+    if (nomArg) {setLoading(true); setIsSelecting(false)}
     
     const initiate = async () => {
-      await handleCalculate();
+      
+      if(deadlineArg) setDeadline(deadlineArg)
+      if (nomArg) setNom(nomArg) 
       await fetchUrlListe()
+      if (nomArg) await handleCalculate();
+      setUrlPerso(`${urlBase}?nom=${nom}&deadline=${deadline}`)
     };
     initiate();
-  }, [])
+  }, [nomArg, nom, url])
   const fetchUrlListe = async () => {
     const urls= await getUrlListe();
+    const urlSearch = (nom ? urls[nom] : undefined) || " "
+    if (urlSearch) await setUrl(urlSearch)
     setUrlListe(urls)
   }
   const formSubmit= async (data : FormData)=>{
@@ -39,7 +51,8 @@ export default function Home() {
     setIsSelecting(true)
   }
   const handleCalculate = async () => {
-    if (!url) return 
+    if (!url) return
+
   
     setIsSelecting(false)
     setLoading(true);
@@ -80,7 +93,7 @@ export default function Home() {
           <div className='space-y-3'>
             <div>
             <p>Emploi du temps</p>
-            <select name="url" onChange={(e) =>setUrl( e.target.value )} className="bg-gray-200 p-2 rounded-lg shadow w-full max-w-md">
+            <select name="url" onChange={(e) =>{setUrl( e.target.value ); setNom(e.target.options[e.target.selectedIndex].textContent)}} className="bg-gray-200 p-2 rounded-lg shadow w-full max-w-md">
               <option value="">Selectionnez un emploi du temps</option>
               {Object.entries(urlListe).map(([nom, url]) => (
                 <option value={String(url)}>{nom}</option>
@@ -100,7 +113,7 @@ export default function Home() {
             />
             </div>
             
-            <button className='bg-blue-500 px-2 rounded-lg shadow text-white' onClick={()=>handleCalculate()}>Calculer </button>
+            <button className='bg-blue-500 px-2 rounded-lg shadow text-white' onClick={async ()=>{handleCalculate()}}>Calculer </button>
           </div>
 
         )}
@@ -137,8 +150,9 @@ export default function Home() {
               <p className="text-gray-600">Heures restantes avant le {deadline} :</p>
               <p className="text-4 font-bold text-green-700">Total : {heures?.total} h</p>
               <p className="text-4 font-bold text-green-700">Total de cours annulés : {heures?.totalAnnule} h</p>
-              <p className="text-4 font-bold text-green-700">Total de jours : {heures?.totalJours} </p>
+              <p className="text-4 font-bold text-green-700">Total de jours : {heures?.totalJours}</p>
               <p className="text-4 font-bold text-green-700">Total de semaines : {heures?.totalSemaines}</p>
+              <p className="text-4 font-bold text-green-700">Total de congés : {heures?.totalConges}</p>
               <br />
               {Array.from(heures.cours.entries()).map(([nom,nb])=>(
                 <p className="text-4 font-bold text-green-700">
@@ -147,7 +161,9 @@ export default function Home() {
               ))}
               
             </div>
+            <p>Lien personnalisée <a href={urlPerso} className='text-sm text-blue-600 underline hover:text-blue-400'>{urlPerso}</a></p>
             </div>
+
           )}
 
         </div>

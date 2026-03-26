@@ -27,15 +27,16 @@ export function calculerHeuresTotales(icsText: string, deadline : Date){
                     heures.totalJours +=1
                     days.push(event.startDate.toJSDate().toDateString())
                     
-                    if(!weeks.includes(getWeekNumber(event.startDate.toJSDate()))) {
+                    if(!weeks.includes(getWeekNumber(event.startDate.toJSDate())) && event.summary!==" ") {
                         heures.totalSemaines+=1
                         weeks.push(getWeekNumber(event.startDate.toJSDate()))
+                        console.log(getWeekNumber(event.startDate.toJSDate()), startDate, deadline, new Date())
                     }
 
                 }
                 const duree = Math.round((event.endDate.toJSDate().getTime() - event.startDate.toJSDate().getTime()) / (1000 * 60 * 60))
-                //console.log(duree)
-                if (event.summary.startsWith("ANNULE")) heures.totalAnnule+=duree
+                if (event.summary===" ") heures.totalConges+=1
+                else if (event.summary.startsWith("ANNULE")) heures.totalAnnule+=duree
                 else {
                     heures.total += duree
                     heures.cours.set(event.summary,(heures.cours.get(event.summary) || 0)+duree)
