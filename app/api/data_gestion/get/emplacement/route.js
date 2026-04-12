@@ -2,7 +2,7 @@
 import db from '@/lib/db'
 import {checkApiKey, forbidenReponse} from '@/lib/Gestion/auth'
 
-export async function GET() {
+export async function GET(req) {
     if (!checkApiKey(req)) return forbidenReponse()
 
   const emplacements = db.prepare('SELECT * FROM Emplacements').all();
