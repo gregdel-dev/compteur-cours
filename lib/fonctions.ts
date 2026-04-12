@@ -41,7 +41,7 @@ export function pasUnDoublon(event : ICAL.Event) : boolean{
 
 
 export async function addUrl (nom : string, url : string){
-    await fetch('/api/data', {
+    await fetch('/api/data_compteur', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nom: nom, url : url })
@@ -49,7 +49,9 @@ export async function addUrl (nom : string, url : string){
 }
 
 export async function getUrlListe() {
-    const data = await fetch('/api/data')
+    const data = await fetch('/api/data_compteur')
       .then(res => res.json())
  return data.urlListe  
 }
+
+
